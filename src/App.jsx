@@ -1,27 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Play, Search, Plus, Trash2, Activity, 
-  X, Copy, Check, Lock, Unlock, LogOut, Download, FolderDown 
+  X, Copy, Check, Lock, LogOut, FolderDown 
 } from 'lucide-react';
 
 // 1. 관리자 비밀번호
-const ADMIN_PASSWORD = '277588'; 
+const ADMIN_PASSWORD = 'admin'; 
 
-// 2. 웹하드 다운로드 링크 (원하시는 공유 드라이브/웹하드 주소로 바꿔주세요)
-const WEBHARD_DOWNLOAD_URL = 'https://webhard.imegagen.com:5001/sharing/e99B9RnxF'; 
+// 2. 웹하드 다운로드 링크 (실제 웹하드/클라우드 링크로 교체하세요)
+const WEBHARD_DOWNLOAD_URL = 'https://drive.google.com'; 
+
+// 이미지 기반 5대 카테고리 목록
+const CATEGORIES = [
+  '전체',
+  '1. Hygiene Care – Inflammation Control',
+  '2. Soft Tissue Cutting',
+  '3. Soft & Hard Tissue – Definitive Treatment',
+  '4. Esthetics',
+  '5. Endodontics'
+];
 
 const INITIAL_PROTOCOLS = [
   {
-    id: 'repair-perio',
+    id: 'hygiene-care',
     title: 'Waterlase REPAIR Perio™ Protocol',
-    category: '치주 (Perio)',
+    category: '1. Hygiene Care – Inflammation Control',
     model: 'Waterlase iPlus',
     youtubeId: 'dQw4w9WgXcQ',
     tip: 'RFPT 5 / RFPT 8',
     power: '1.5W - 2.0W',
     hz: '30Hz - 50Hz',
     waterAir: 'Water 30% / Air 40%',
-    summary: '만성 치주염 환자를 위한 최소 침습 레이저 치주 재생 프로토콜. 치주낭 살균 및 육아조직 제거.',
+    summary: '치주낭 내부 살균 및 염증 제어(Inflammation Control)를 위한 최소 침습 레이저 프로토콜.',
     steps: [
       'Step 1: RFPT 팁을 이용해 치주낭 내 잔여 결합조직 및 육아조직 제거',
       'Step 2: 치근 활택술(Root Planing) 후 레이저로 스미어 레이어 및 세균막 제거',
@@ -29,46 +39,78 @@ const INITIAL_PROTOCOLS = [
     ]
   },
   {
-    id: 'repair-endo',
+    id: 'soft-tissue-cutting',
+    title: 'Gingivectomy & Soft Tissue Excision',
+    category: '2. Soft Tissue Cutting',
+    model: 'Waterlase iPlus',
+    youtubeId: 'dQw4w9WgXcQ',
+    tip: 'MZ6 / Gold Handpiece',
+    power: '1.5W - 2.5W',
+    hz: '30Hz - 50Hz',
+    waterAir: 'Water 10% / Air 20%',
+    summary: '출혈 없이 정밀하게 연조직을 절제(Soft Tissue Cutting)하고 지혈하는 프로토콜.',
+    steps: [
+      'Step 1: 절제 라인 디자인 및 마킹',
+      'Step 2: 접촉식 팁으로 부드러운 핸들링 절제',
+      'Step 3: 주변 연조직 지혈 및 경계 정리'
+    ]
+  },
+  {
+    id: 'soft-hard-tissue',
+    title: 'Crown Lengthening & Bone Recontouring',
+    category: '3. Soft & Hard Tissue – Definitive Treatment',
+    model: 'Waterlase iPlus',
+    youtubeId: 'dQw4w9WgXcQ',
+    tip: 'MZ6 / MZ8',
+    power: '3.5W - 4.5W',
+    hz: '15Hz - 20Hz',
+    waterAir: 'Water 60% / Air 70%',
+    summary: '연조직 절제 및 치조골 삭제를 동시/순차적으로 진행하는 확정적 치료 프로토콜.',
+    steps: [
+      'Step 1: 연조직 절제 및 생물학적 폭경 확보 라인 형성',
+      'Step 2: 충분한 수분 주주 하에 치조골 무열 손상 삭제',
+      'Step 3: 변연부 평탄화 및 최종 세척'
+    ]
+  },
+  {
+    id: 'esthetics-protocol',
+    title: 'Melanin Depigmentation & Smile Design',
+    category: '4. Esthetics',
+    model: 'Waterlase Express',
+    youtubeId: 'dQw4w9WgXcQ',
+    tip: 'MZ6 / RFPT',
+    power: '1.0W - 1.5W',
+    hz: '30Hz',
+    waterAir: 'Water 20% / Air 30%',
+    summary: '치은 멜라닌 색소 제거 및 심미적 치은 성형을 위한 에스테틱 프로토콜.',
+    steps: [
+      'Step 1: 표층 상피 멜라닌 층 균일 레이저 박리',
+      'Step 2: 냉각 수분 조절을 통한 열손상 방지',
+      'Step 3: 비침습 치유 유도'
+    ]
+  },
+  {
+    id: 'endodontics-protocol',
     title: 'REPAIR Endo™ Root Canal Disinfection',
-    category: '근관 (Endo)',
+    category: '5. Endodontics',
     model: 'Waterlase iPlus',
     youtubeId: 'dQw4w9WgXcQ',
     tip: 'RFT2 / RFT3',
     power: '1.25W',
     hz: '50Hz',
     waterAir: 'Water 20% / Air 30%',
-    summary: '근관 내 박테리아 살균 및 스미어 레이어 제거를 위한 워터레이즈 근관 세척 프로토콜.',
+    summary: '근관 내 세균막 살균 및 스미어 레이어 제거를 위한 워터레이즈 근관 치료 프로토콜.',
     steps: [
       'Step 1: 통상적인 근관 확대 형성 후 RFT 팁을 근단부 1mm 직전까지 위치',
       'Step 2: 나선형으로 천천히 회전하며 인출 (초당 약 1mm)',
       'Step 3: 최종 세척 및 건조 후 근관 충전 준비'
     ]
-  },
-  {
-    id: 'implant-debridement',
-    title: 'Implant Debridement & Peri-implantitis',
-    category: '임플란트 (Implant)',
-    model: 'Waterlase iPlus',
-    youtubeId: 'dQw4w9WgXcQ',
-    tip: 'RFPT 5 / MZ6',
-    power: '1.0W - 1.5W',
-    hz: '40Hz',
-    waterAir: 'Water 40% / Air 50%',
-    summary: '임플란트 픽스처 표면 손상 없이 바이오필름과 육아조직을 효과적으로 제거하는 프로토콜.',
-    steps: [
-      'Step 1: 나사선 사이 육아조직 조심스럽게 절제',
-      'Step 2: 픽스처 표면 바이오필름 레이저 디컨태미네이션(Decontamination)',
-      'Step 3: 생리식염수 세척 후 골이식 또는 봉합'
-    ]
   }
 ];
 
-const CATEGORIES = ['전체', '치주 (Perio)', '근관 (Endo)', '임플란트 (Implant)', '연조직 (Soft Tissue)', '경조직 (Hard Tissue)'];
-
 export default function App() {
   const [protocols, setProtocols] = useState(() => {
-    const saved = localStorage.getItem('waterlase_protocols');
+    const saved = localStorage.getItem('waterlase_protocols_v2');
     return saved ? JSON.parse(saved) : INITIAL_PROTOCOLS;
   });
 
@@ -86,7 +128,7 @@ export default function App() {
 
   const [newForm, setNewForm] = useState({
     title: '',
-    category: '치주 (Perio)',
+    category: CATEGORIES[1],
     model: 'Waterlase iPlus',
     youtubeUrl: '',
     tip: '',
@@ -97,7 +139,7 @@ export default function App() {
   });
 
   useEffect(() => {
-    localStorage.setItem('waterlase_protocols', JSON.stringify(protocols));
+    localStorage.setItem('waterlase_protocols_v2', JSON.stringify(protocols));
   }, [protocols]);
 
   const handleAdminLogin = (e) => {
@@ -107,7 +149,7 @@ export default function App() {
       sessionStorage.setItem('is_waterlase_admin', 'true');
       setIsLoginModalOpen(false);
       setPasswordInput('');
-      alert('관리자 모드로 전환되었습니다. 이제 추가 및 삭제가 가능합니다.');
+      alert('관리자 모드로 전환되었습니다.');
     } else {
       alert('비밀번호가 올바르지 않습니다.');
     }
@@ -131,7 +173,7 @@ export default function App() {
       alert('관리자만 삭제할 수 있습니다.');
       return;
     }
-    if (window.confirm('이 프로토콜 영상을 목록에서 완전히 삭제하시겠습니까?')) {
+    if (window.confirm('이 프로토콜 영상을 삭제하시겠습니까?')) {
       const updated = protocols.filter(item => item.id !== id);
       setProtocols(updated);
       if (activeVideo && activeVideo.id === id) {
@@ -147,7 +189,7 @@ export default function App() {
       return;
     }
     if (!newForm.title || !newForm.youtubeUrl) {
-      alert('제목과 유튜브 링크(또는 ID)를 입력해주세요.');
+      alert('제목과 유튜브 링크를 입력해주세요.');
       return;
     }
     const ytId = extractYoutubeId(newForm.youtubeUrl);
@@ -162,13 +204,13 @@ export default function App() {
       hz: newForm.hz || '30Hz',
       waterAir: newForm.waterAir || 'Water 30% / Air 30%',
       summary: newForm.summary || '임상 프로토콜 세팅 가이드',
-      steps: ['시술 부위 마취 및 소독', '지정 파라미터 세팅 후 시술 적용', '치유 확인 및 사후 처치']
+      steps: ['시술 부위 준비 및 소독', '지정 파라미터 세팅 후 시술 적용', '치유 확인 및 마무리']
     };
     setProtocols([newEntry, ...protocols]);
     setIsAddModalOpen(false);
     setNewForm({
       title: '',
-      category: '치주 (Perio)',
+      category: CATEGORIES[1],
       model: 'Waterlase iPlus',
       youtubeUrl: '',
       tip: '',
@@ -201,7 +243,6 @@ export default function App() {
       <header style={{ borderBottom: '1px solid #1e293b', backgroundColor: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(8px)', position: 'sticky', top: 0, zIndex: 30, padding: '16px 24px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
           
-          {/* 로고 영역 */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'linear-gradient(135deg, #0ea5e9, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(14, 165, 233, 0.3)' }}>
               <Activity size={24} color="#fff" />
@@ -219,9 +260,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* 검색창, 다운로드, 관리자 버튼 영역 */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            {/* 검색창 */}
             <div style={{ position: 'relative', width: '200px' }}>
               <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
               <input
@@ -243,12 +282,11 @@ export default function App() {
               />
             </div>
 
-            {/* 웹하드 자료실 다운로드 링크 버튼 */}
             <a
               href={WEBHARD_DOWNLOAD_URL}
               target="_blank"
               rel="noopener noreferrer"
-              title="웹하드 자료실로 이동하여 관련 파일 다운로드"
+              title="웹하드 자료실로 이동"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -261,16 +299,12 @@ export default function App() {
                 textDecoration: 'none',
                 fontWeight: 600,
                 fontSize: '0.85rem',
-                whiteSpace: 'nowrap',
-                transition: 'background-color 0.2s'
+                whiteSpace: 'nowrap'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1e293b'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#334155'}
             >
               <FolderDown size={16} /> 자료실 다운로드
             </a>
 
-            {/* 관리자일 때만 추가 버튼 노출 */}
             {isAdmin && (
               <button
                 onClick={() => setIsAddModalOpen(true)}
@@ -286,19 +320,16 @@ export default function App() {
                   cursor: 'pointer',
                   fontWeight: 600,
                   fontSize: '0.85rem',
-                  whiteSpace: 'nowrap',
-                  boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)'
+                  whiteSpace: 'nowrap'
                 }}
               >
                 <Plus size={16} /> 프로토콜 추가
               </button>
             )}
 
-            {/* 관리자 로그인/로그아웃 버튼 */}
             {isAdmin ? (
               <button
                 onClick={handleAdminLogout}
-                title="관리자 로그아웃"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -318,7 +349,6 @@ export default function App() {
             ) : (
               <button
                 onClick={() => setIsLoginModalOpen(true)}
-                title="관리자 로그인"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -338,7 +368,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* 카테고리 탭 */}
+        {/* 카테고리 탭 (1~5번 체계) */}
         <div style={{ maxWidth: '1200px', margin: '14px auto 0', display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
           {CATEGORIES.map(cat => (
             <button
@@ -352,7 +382,8 @@ export default function App() {
                 backgroundColor: selectedCategory === cat ? '#0369a1' : '#1e293b',
                 color: selectedCategory === cat ? '#fff' : '#94a3b8',
                 cursor: 'pointer',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                fontWeight: selectedCategory === cat ? 600 : 400
               }}
             >
               {cat}
@@ -361,11 +392,11 @@ export default function App() {
         </div>
       </header>
 
-      {/* 메인 리스트 그리드 */}
+      {/* 메인 리스트 */}
       <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
         {filteredProtocols.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 0', color: '#64748b' }}>
-            <p style={{ fontSize: '1.1rem' }}>검색 결과 또는 등록된 프로토콜 영상이 없습니다.</p>
+            <p style={{ fontSize: '1.1rem' }}>해당 카테고리의 프로토콜 영상이 없습니다.</p>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '22px' }}>
@@ -379,15 +410,10 @@ export default function App() {
                   border: '1px solid #334155',
                   overflow: 'hidden',
                   cursor: 'pointer',
-                  transition: 'transform 0.15s, border-color 0.15s',
                   display: 'flex',
-                  flexDirection: 'column',
-                  position: 'relative'
+                  flexDirection: 'column'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.borderColor = '#0284c7'}
-                onMouseLeave={(e) => e.currentTarget.style.borderColor = '#334155'}
               >
-                {/* 썸네일 영역 */}
                 <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%', backgroundColor: '#000' }}>
                   <img
                     src={`https://img.youtube.com/vi/${item.youtubeId}/hqdefault.jpg`}
@@ -400,15 +426,14 @@ export default function App() {
                       <Play size={22} color="#fff" fill="#fff" />
                     </div>
                   </div>
-                  <span style={{ position: 'absolute', top: '10px', left: '10px', backgroundColor: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(4px)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600 }}>
+                  <span style={{ position: 'absolute', top: '10px', left: '10px', backgroundColor: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(4px)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 600 }}>
                     {item.category}
                   </span>
 
-                  {/* 관리자 모드일 때만 삭제 버튼 노출 */}
                   {isAdmin && (
                     <button
                       onClick={(e) => handleDelete(item.id, e)}
-                      title="프로토콜 삭제 (관리자)"
+                      title="프로토콜 삭제"
                       style={{
                         position: 'absolute',
                         top: '10px',
@@ -426,14 +451,12 @@ export default function App() {
                   )}
                 </div>
 
-                {/* 콘텐츠 영역 */}
                 <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                   <div>
                     <h3 style={{ margin: '0 0 8px 0', fontSize: '1rem', lineHeight: '1.4', fontWeight: 600 }}>{item.title}</h3>
                     <p style={{ margin: '0 0 12px 0', fontSize: '0.8rem', color: '#94a3b8', lineHeight: '1.4' }}>{item.summary}</p>
                   </div>
 
-                  {/* 세팅 파라미터 뱃지 박스 */}
                   <div style={{ backgroundColor: '#0f172a', padding: '10px 12px', borderRadius: '8px', fontSize: '0.75rem', border: '1px solid #334155' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                       <span style={{ color: '#38bdf8', fontWeight: 600 }}>Tip: {item.tip}</span>
@@ -457,7 +480,7 @@ export default function App() {
         )}
       </main>
 
-      {/* 영상 재생 모달 */}
+      {/* 모달: 영상 재생 */}
       {activeVideo && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ backgroundColor: '#1e293b', borderRadius: '12px', width: '100%', maxWidth: '850px', maxHeight: '90vh', overflowY: 'auto', border: '1px solid #334155' }}>
@@ -499,7 +522,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 관리자 로그인 모달 */}
+      {/* 모달: 관리자 로그인 */}
       {isLoginModalOpen && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <form onSubmit={handleAdminLogin} style={{ backgroundColor: '#1e293b', borderRadius: '12px', width: '100%', maxWidth: '360px', padding: '24px', border: '1px solid #334155' }}>
@@ -512,10 +535,10 @@ export default function App() {
                 <X size={20} />
               </button>
             </div>
-            <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: '0 0 16px 0' }}>영상 추가 및 삭제 권한을 위해 비밀번호를 입력해주세요.</p>
+            <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: '0 0 16px 0' }}>비밀번호를 입력해 주세요.</p>
             <input
               type="password"
-              placeholder="관리자 비밀번호 입력"
+              placeholder="관리자 비밀번호"
               value={passwordInput}
               onChange={(e) => setPasswordInput(e.target.value)}
               autoFocus
@@ -523,7 +546,7 @@ export default function App() {
             />
             <button
               type="submit"
-              style={{ width: '100%', backgroundColor: '#0284c7', color: '#fff', border: 'none', padding: '10px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }}
+              style={{ width: '100%', backgroundColor: '#0284c7', color: '#fff', border: 'none', padding: '10px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
             >
               인증 확인
             </button>
@@ -531,7 +554,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 신규 영상 등록 모달 */}
+      {/* 모달: 영상 추가 */}
       {isAddModalOpen && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <form onSubmit={handleAddProtocol} style={{ backgroundColor: '#1e293b', borderRadius: '12px', width: '100%', maxWidth: '480px', padding: '24px', border: '1px solid #334155' }}>
@@ -548,7 +571,7 @@ export default function App() {
                 <input
                   type="text"
                   required
-                  placeholder="예: 치주낭 살균 레이저 시술"
+                  placeholder="시술명 입력"
                   value={newForm.title}
                   onChange={(e) => setNewForm({ ...newForm, title: e.target.value })}
                   style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
@@ -567,17 +590,18 @@ export default function App() {
                 />
               </div>
 
+              <div>
+                <label style={{ display: 'block', marginBottom: '4px', color: '#cbd5e1' }}>카테고리 선택</label>
+                <select
+                  value={newForm.category}
+                  onChange={(e) => setNewForm({ ...newForm, category: e.target.value })}
+                  style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff' }}
+                >
+                  {CATEGORIES.filter(c => c !== '전체').map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '4px', color: '#cbd5e1' }}>카테고리</label>
-                  <select
-                    value={newForm.category}
-                    onChange={(e) => setNewForm({ ...newForm, category: e.target.value })}
-                    style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff' }}
-                  >
-                    {CATEGORIES.filter(c => c !== '전체').map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '4px', color: '#cbd5e1' }}>적용 Tip</label>
                   <input
@@ -588,9 +612,6 @@ export default function App() {
                     style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
                   />
                 </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
                   <label style={{ display: 'block', marginBottom: '4px', color: '#cbd5e1' }}>Power / Hz</label>
                   <input
@@ -601,23 +622,24 @@ export default function App() {
                     style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
                   />
                 </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '4px', color: '#cbd5e1' }}>Water / Air</label>
-                  <input
-                    type="text"
-                    placeholder="Water 30% / Air 40%"
-                    value={newForm.waterAir}
-                    onChange={(e) => setNewForm({ ...newForm, waterAir: e.target.value })}
-                    style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
-                  />
-                </div>
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: '4px', color: '#cbd5e1' }}>프로토콜 설명 요약</label>
+                <label style={{ display: 'block', marginBottom: '4px', color: '#cbd5e1' }}>Water / Air</label>
+                <input
+                  type="text"
+                  placeholder="Water 30% / Air 40%"
+                  value={newForm.waterAir}
+                  onChange={(e) => setNewForm({ ...newForm, waterAir: e.target.value })}
+                  style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '4px', color: '#cbd5e1' }}>요약 설명</label>
                 <textarea
                   rows={2}
-                  placeholder="임상 목적 및 주의사항 간략 메모"
+                  placeholder="시술 목적 및 주의사항 간략 메모"
                   value={newForm.summary}
                   onChange={(e) => setNewForm({ ...newForm, summary: e.target.value })}
                   style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
