@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 
 // 1. 관리자 비밀번호
-const ADMIN_PASSWORD = 'admin'; 
+const ADMIN_PASSWORD = '277588'; 
 
 // 2. 웹하드 다운로드 링크 (실제 웹하드/클라우드 링크로 교체하세요)
 const WEBHARD_DOWNLOAD_URL = 'https://drive.google.com'; 
