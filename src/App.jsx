@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 
 // 관리자 비밀번호 (원하시는 비밀번호로 자유롭게 변경 가능합니다)
-const ADMIN_PASSWORD = 'admin'; 
+const ADMIN_PASSWORD = '277588'; 
 
 const INITIAL_PROTOCOLS = [
   {
