@@ -269,7 +269,7 @@ export default function App() {
     <div style={{ minHeight: '100vh', backgroundColor: '#0f172a', color: '#f8fafc', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       {/* 헤더 */}
       <header style={{ borderBottom: '1px solid #1e293b', backgroundColor: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(8px)', position: 'sticky', top: 0, zIndex: 30, padding: '16px 24px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+        <div style={{ maxWidth: '95%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'linear-gradient(135deg, #0ea5e9, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(14, 165, 233, 0.3)' }}>
@@ -412,7 +412,7 @@ export default function App() {
         {/* 2줄 카테고리 그리드 레이아웃 */}
         <div 
           style={{ 
-            maxWidth: '1200px', 
+            maxWidth: '95%', 
             margin: '14px auto 0', 
             display: 'grid', 
             gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
@@ -442,7 +442,7 @@ export default function App() {
       </header>
 
       {/* 리스트 그리드 */}
-      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
+      <main style={{ maxWidth: '95%', margin: '0 auto', padding: '24px' }}>
         {filteredProtocols.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 0', color: '#64748b' }}>
             <p style={{ fontSize: '1.1rem' }}>해당 카테고리의 프로토콜 영상이 없습니다.</p>
