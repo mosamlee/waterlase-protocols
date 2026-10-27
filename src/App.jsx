@@ -8,7 +8,7 @@ import {
 const ADMIN_PASSWORD = '277588'; 
 
 // 2. 웹하드 다운로드 링크
-const WEBHARD_DOWNLOAD_URL = 'https://drive.google.com'; 
+const WEBHARD_DOWNLOAD_URL = 'https://webhard.imegagen.com:5001/sharing/e99B9RnxF'; 
 
 // 1~5번 임상 카테고리
 const CATEGORIES = [
@@ -20,97 +20,98 @@ const CATEGORIES = [
   '5. Endodontics'
 ];
 
+// 실제 등록하신 5개 영상 데이터 영구 고정
 const INITIAL_PROTOCOLS = [
   {
-    id: 'hygiene-care',
-    title: 'Waterlase REPAIR Perio™ Protocol',
-    category: '1. Hygiene Care – Inflammation Control',
-    model: 'Waterlase iPlus',
-    youtubeId: 'dQw4w9WgXcQ',
-    tip: 'RFPT 5 / RFPT 8',
-    power: '1.5W - 2.0W',
-    hz: '30Hz - 50Hz',
-    waterAir: 'Water 30% / Air 40%',
-    summary: '치주낭 내부 살균 및 염증 제어(Inflammation Control)를 위한 최소 침습 레이저 프로토콜.',
+    id: "hygiene-care",
+    title: "Periodontitis",
+    category: "1. Hygiene Care – Inflammation Control",
+    model: "Waterlase iPlus",
+    youtubeId: "di-9LKU-Xj8",
+    tip: "RFPT5",
+    power: "1.5W / 30Hz - 75Hz",
+    hz: "30Hz - 50Hz",
+    waterAir: "Water 40% / Air 40%",
+    summary: "치주낭 내부 살균 및 염증 제어(Inflammation Control)를 위한 최소 침습 레이저 프로토콜",
     steps: [
-      'Step 1: RFPT 팁을 이용해 치주낭 내 잔여 결합조직 및 육아조직 제거',
-      'Step 2: 치근 활택술(Root Planing) 후 레이저로 스미어 레이어 및 세균막 제거',
-      'Step 3: 응고 모드로 혈병(Blood Clot) 형성 유도'
+      "Step 1: RFPT 팁을 이용해 치주낭 내 잔여 결합조직 및 육아조직 제거",
+      "Step 2: 치근 활택술(Root Planing) 후 레이저로 스미어 레이어 및 세균막 제거",
+      "Step 3: 응고 모드로 혈병(Blood Clot) 형성 유도"
     ]
   },
   {
-    id: 'soft-tissue-cutting',
-    title: 'Gingivectomy & Soft Tissue Excision',
-    category: '2. Soft Tissue Cutting',
-    model: 'Waterlase iPlus',
-    youtubeId: 'dQw4w9WgXcQ',
-    tip: 'MZ6 / Gold Handpiece',
-    power: '1.5W - 2.5W',
-    hz: '30Hz - 50Hz',
-    waterAir: 'Water 10% / Air 20%',
-    summary: '출혈 없이 정밀하게 연조직을 절제(Soft Tissue Cutting)하고 지혈하는 프로토콜.',
+    id: "soft-tissue-cutting",
+    title: "Fibroma Removal",
+    category: "2. Soft Tissue Cutting",
+    model: "Waterlase iPlus",
+    youtubeId: "rI90LuRUJj0",
+    tip: "MZ6",
+    power: "0.5W - 2.75W / 40Hz - 50Hz",
+    hz: "30Hz - 50Hz",
+    waterAir: "Water 1% - 40% / Air 20%",
+    summary: "출혈 없이 정밀하게 연조직을 절제(Soft Tissue Cutting)하고 지혈하는 프로토콜.",
     steps: [
-      'Step 1: 절제 라인 디자인 및 마킹',
-      'Step 2: 접촉식 팁으로 부드러운 핸들링 절제',
-      'Step 3: 주변 연조직 지혈 및 경계 정리'
+      "Step 1: 절제 라인 디자인 및 마킹",
+      "Step 2: 접촉식 팁으로 부드러운 핸들링 절제",
+      "Step 3: 주변 연조직 지혈 및 경계 정리"
     ]
   },
   {
-    id: 'soft-hard-tissue',
-    title: 'Crown Lengthening & Bone Recontouring',
-    category: '3. Soft & Hard Tissue – Definitive Treatment',
-    model: 'Waterlase iPlus',
-    youtubeId: 'dQw4w9WgXcQ',
-    tip: 'MZ6 / MZ8',
-    power: '3.5W - 4.5W',
-    hz: '15Hz - 20Hz',
-    waterAir: 'Water 60% / Air 70%',
-    summary: '연조직 절제 및 치조골 삭제를 동시/순차적으로 진행하는 확정적 치료 프로토콜.',
+    id: "soft-hard-tissue",
+    title: "Peri Implantitis",
+    category: "3. Soft & Hard Tissue – Definitive Treatment",
+    model: "Waterlase iPlus",
+    youtubeId: "oaY5PYkLFf8",
+    tip: "RFPT5 / MZ6",
+    power: "1.5W / 30Hz - 50Hz",
+    hz: "15Hz - 20Hz",
+    waterAir: "Water 10% - 50% / Air 10% - 40%",
+    summary: "연조직 절제 및 치조골 삭제를 동시/순차적으로 진행하는 확정적 치료 프로토콜.",
     steps: [
-      'Step 1: 연조직 절제 및 생물학적 폭경 확보 라인 형성',
-      'Step 2: 충분한 수분 주주 하에 치조골 무열 손상 삭제',
-      'Step 3: 변연부 평탄화 및 최종 세척'
+      "Step 1: 연조직 절제 및 생물학적 폭경 확보 라인 형성",
+      "Step 2: 충분한 수분 주주 하에 치조골 무열 손상 삭제",
+      "Step 3: 변연부 평탄화 및 최종 세척"
     ]
   },
   {
-    id: 'esthetics-protocol',
-    title: 'Melanin Depigmentation & Smile Design',
-    category: '4. Esthetics',
-    model: 'Waterlase Express',
-    youtubeId: 'dQw4w9WgXcQ',
-    tip: 'MZ6 / RFPT',
-    power: '1.0W - 1.5W',
-    hz: '30Hz',
-    waterAir: 'Water 20% / Air 30%',
-    summary: '치은 멜라닌 색소 제거 및 심미적 치은 성형을 위한 에스테틱 프로토콜.',
+    id: "esthetics-protocol",
+    title: "Veneer Removal",
+    category: "4. Esthetics",
+    model: "Waterlase Express",
+    youtubeId: "0zoU_VVlFcg",
+    tip: "MZ6",
+    power: "3.5W / 20Hz",
+    hz: "30Hz",
+    waterAir: "Water 50% / Air 50%",
+    summary: "베니어 제거 및 심미적 치료를 위한 에스테틱 프로토콜.",
     steps: [
-      'Step 1: 표층 상피 멜라닌 층 균일 레이저 박리',
-      'Step 2: 냉각 수분 조절을 통한 열손상 방지',
-      'Step 3: 비침습 치유 유도'
+      "Step 1: 표층 상피 멜라닌 층 균일 레이저 박리",
+      "Step 2: 냉각 수분 조절을 통한 열손상 방지",
+      "Step 3: 비침습 치유 유도"
     ]
   },
   {
-    id: 'endodontics-protocol',
-    title: 'REPAIR Endo™ Root Canal Disinfection',
-    category: '5. Endodontics',
-    model: 'Waterlase iPlus',
-    youtubeId: 'dQw4w9WgXcQ',
-    tip: 'RFT2 / RFT3',
-    power: '1.25W',
-    hz: '50Hz',
-    waterAir: 'Water 20% / Air 30%',
-    summary: '근관 내 세균막 살균 및 스미어 레이어 제거를 위한 워터레이즈 근관 치료 프로토콜.',
+    id: "crown-removal-protocol",
+    title: "crown removal",
+    category: "4. Esthetics",
+    model: "Waterlase iPlus",
+    youtubeId: "UXMpwJBNNNA",
+    tip: "MZ6",
+    power: "4.5W / 20Hz",
+    hz: "50Hz",
+    waterAir: "Water 50% / Air 50%",
+    summary: "크라운 제거 및 비침습 보철 탈락을 위한 워터레이즈 프로토콜",
     steps: [
-      'Step 1: 통상적인 근관 확대 형성 후 RFT 팁을 근단부 1mm 직전까지 위치',
-      'Step 2: 나선형으로 천천히 회전하며 인출 (초당 약 1mm)',
-      'Step 3: 최종 세척 및 건조 후 근관 충전 준비'
+      "Step 1: 보철물 마진 및 교합면 중심 레이저 조사",
+      "Step 2: 접착 레진 결합 파괴 유도",
+      "Step 3: 지대치 손상 없이 안전한 탈락 확인"
     ]
   }
 ];
 
 export default function App() {
   const [protocols, setProtocols] = useState(() => {
-    const saved = localStorage.getItem('waterlase_protocols_v2');
+    const saved = localStorage.getItem('waterlase_protocols_prod_v1');
     return saved ? JSON.parse(saved) : INITIAL_PROTOCOLS;
   });
 
@@ -122,14 +123,12 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeVideo, setActiveVideo] = useState(null);
   
-  // 모달 제어
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [copiedId, setCopiedId] = useState(null);
 
-  // 등록/수정 폼 상태
   const [formData, setFormData] = useState({
     id: '',
     title: '',
@@ -144,10 +143,9 @@ export default function App() {
   });
 
   useEffect(() => {
-    localStorage.setItem('waterlase_protocols_v2', JSON.stringify(protocols));
+    localStorage.setItem('waterlase_protocols_prod_v1', JSON.stringify(protocols));
   }, [protocols]);
 
-  // 관리자 인증
   const handleAdminLogin = (e) => {
     e.preventDefault();
     if (passwordInput === ADMIN_PASSWORD) {
@@ -173,7 +171,6 @@ export default function App() {
     return (match && match[2].length === 11) ? match[2] : url;
   };
 
-  // 삭제 핸들러
   const handleDelete = (id, e) => {
     e.stopPropagation();
     if (!isAdmin) return;
@@ -186,7 +183,6 @@ export default function App() {
     }
   };
 
-  // 수정 버튼 클릭 시 폼 열기
   const handleOpenEdit = (item, e) => {
     e.stopPropagation();
     setFormData({
@@ -204,7 +200,6 @@ export default function App() {
     setIsEditModalOpen(true);
   };
 
-  // 수정 내용 저장
   const handleSaveEdit = (e) => {
     e.preventDefault();
     const ytId = extractYoutubeId(formData.youtubeUrl);
@@ -227,10 +222,9 @@ export default function App() {
     });
     setProtocols(updated);
     setIsEditModalOpen(false);
-    alert('수정 완료되었습니다.');
+    alert('수정이 완료되었습니다.');
   };
 
-  // 신규 등록
   const handleAddProtocol = (e) => {
     e.preventDefault();
     if (!formData.title || !formData.youtubeUrl) {
@@ -255,7 +249,6 @@ export default function App() {
     setIsAddModalOpen(false);
   };
 
-  // 파라미터 복사
   const handleCopyParams = (item, e) => {
     e.stopPropagation();
     const text = `[${item.title}]\nTip: ${item.tip}\nPower: ${item.power} | Hz: ${item.hz}\nWater/Air: ${item.waterAir}`;
@@ -486,7 +479,7 @@ export default function App() {
                     {item.category}
                   </span>
 
-                  {/* 관리자 모드 전용: 수정 및 삭제 버튼 그룹 */}
+                  {/* 관리자 모드 전용: 수정 및 삭제 버튼 */}
                   {isAdmin && (
                     <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '6px' }}>
                       <button
@@ -530,7 +523,7 @@ export default function App() {
                   <div style={{ backgroundColor: '#0f172a', padding: '10px 12px', borderRadius: '8px', fontSize: '0.75rem', border: '1px solid #334155' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                       <span style={{ color: '#38bdf8', fontWeight: 600 }}>Tip: {item.tip}</span>
-                      <span style={{ color: '#cbd5e1' }}>{item.power} / {item.hz}</span>
+                      <span style={{ color: '#cbd5e1' }}>{item.power}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ color: '#94a3b8' }}>{item.waterAir}</span>
@@ -574,7 +567,7 @@ export default function App() {
             <div style={{ padding: '20px' }}>
               <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#38bdf8' }}>권장 파라미터 세팅</h4>
               <p style={{ margin: '0 0 16px 0', fontSize: '0.85rem' }}>
-                Tip: <b>{activeVideo.tip}</b> | Power: <b>{activeVideo.power}</b> | Rep Rate: <b>{activeVideo.hz}</b> | Spray: <b>{activeVideo.waterAir}</b>
+                Tip: <b>{activeVideo.tip}</b> | Power: <b>{activeVideo.power}</b> | Spray: <b>{activeVideo.waterAir}</b>
               </p>
 
               {activeVideo.steps && (
@@ -623,7 +616,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 모달: 프로토콜 추가 / 수정 공용 모달 */}
+      {/* 모달: 추가 및 수정 공용 */}
       {(isAddModalOpen || isEditModalOpen) && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <form onSubmit={isEditModalOpen ? handleSaveEdit : handleAddProtocol} style={{ backgroundColor: '#1e293b', borderRadius: '12px', width: '100%', maxWidth: '480px', padding: '24px', border: '1px solid #334155' }}>
