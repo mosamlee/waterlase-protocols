@@ -368,22 +368,31 @@ export default function App() {
           </div>
         </div>
 
-        {/* 카테고리 탭 (1~5번 체계) */}
-        <div style={{ maxWidth: '1200px', margin: '14px auto 0', display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
+     {/* 카테고리 탭 (2줄 그리드 레이아웃) */}
+        <div 
+          style={{ 
+            maxWidth: '1200px', 
+            margin: '14px auto 0', 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+            gap: '8px' 
+          }}
+        >
           {CATEGORIES.map(cat => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
               style={{
-                padding: '6px 14px',
-                borderRadius: '9999px',
+                padding: '8px 12px',
+                borderRadius: '8px',
                 fontSize: '0.8rem',
                 border: selectedCategory === cat ? '1px solid #38bdf8' : '1px solid #334155',
                 backgroundColor: selectedCategory === cat ? '#0369a1' : '#1e293b',
                 color: selectedCategory === cat ? '#fff' : '#94a3b8',
                 cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                fontWeight: selectedCategory === cat ? 600 : 400
+                fontWeight: selectedCategory === cat ? 600 : 400,
+                textAlign: 'center',
+                transition: 'all 0.15s ease'
               }}
             >
               {cat}
