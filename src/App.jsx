@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Play, Search, Plus, Trash2, Activity, 
-  X, Copy, Check, Lock, Unlock, LogOut 
+  X, Copy, Check, Lock, Unlock, LogOut, Download, FolderDown 
 } from 'lucide-react';
 
-// 관리자 비밀번호 (원하시는 비밀번호로 자유롭게 변경 가능합니다)
+// 1. 관리자 비밀번호
 const ADMIN_PASSWORD = '277588'; 
+
+// 2. 웹하드 다운로드 링크 (원하시는 공유 드라이브/웹하드 주소로 바꿔주세요)
+const WEBHARD_DOWNLOAD_URL = 'https://webhard.imegagen.com:5001/sharing/e99B9RnxF'; 
 
 const INITIAL_PROTOCOLS = [
   {
@@ -81,7 +84,6 @@ export default function App() {
   const [passwordInput, setPasswordInput] = useState('');
   const [copiedId, setCopiedId] = useState(null);
 
-  // 신규 영상 입력 state
   const [newForm, setNewForm] = useState({
     title: '',
     category: '치주 (Perio)',
@@ -98,7 +100,6 @@ export default function App() {
     localStorage.setItem('waterlase_protocols', JSON.stringify(protocols));
   }, [protocols]);
 
-  // 관리자 로그인 처리
   const handleAdminLogin = (e) => {
     e.preventDefault();
     if (passwordInput === ADMIN_PASSWORD) {
@@ -112,21 +113,18 @@ export default function App() {
     }
   };
 
-  // 관리자 로그아웃 처리
   const handleAdminLogout = () => {
     setIsAdmin(false);
     sessionStorage.removeItem('is_waterlase_admin');
     alert('관리자 모드에서 로그아웃되었습니다.');
   };
 
-  // 유튜브 URL에서 ID 추출
   const extractYoutubeId = (url) => {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : url;
   };
 
-  // 영상 삭제 기능 (관리자 전용)
   const handleDelete = (id, e) => {
     e.stopPropagation();
     if (!isAdmin) {
@@ -142,7 +140,6 @@ export default function App() {
     }
   };
 
-  // 신규 영상 등록 (관리자 전용)
   const handleAddProtocol = (e) => {
     e.preventDefault();
     if (!isAdmin) {
@@ -182,7 +179,6 @@ export default function App() {
     });
   };
 
-  // 파라미터 복사
   const handleCopyParams = (item, e) => {
     e.stopPropagation();
     const text = `[${item.title}]\nTip: ${item.tip}\nPower: ${item.power} | Hz: ${item.hz}\nWater/Air: ${item.waterAir}`;
@@ -205,7 +201,7 @@ export default function App() {
       <header style={{ borderBottom: '1px solid #1e293b', backgroundColor: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(8px)', position: 'sticky', top: 0, zIndex: 30, padding: '16px 24px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
           
-          {/* 타이틀 로고 영역 */}
+          {/* 로고 영역 */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'linear-gradient(135deg, #0ea5e9, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(14, 165, 233, 0.3)' }}>
               <Activity size={24} color="#fff" />
@@ -223,14 +219,14 @@ export default function App() {
             </div>
           </div>
 
-          {/* 검색창 & 액션 버튼 영역 (겹침 문제 해결) */}
+          {/* 검색창, 다운로드, 관리자 버튼 영역 */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             {/* 검색창 */}
-            <div style={{ position: 'relative', width: '220px' }}>
+            <div style={{ position: 'relative', width: '200px' }}>
               <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
               <input
                 type="text"
-                placeholder="시술, 팁, 키워드 검색..."
+                placeholder="시술, 팁 검색..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
@@ -246,6 +242,33 @@ export default function App() {
                 }}
               />
             </div>
+
+            {/* 웹하드 자료실 다운로드 링크 버튼 */}
+            <a
+              href={WEBHARD_DOWNLOAD_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="웹하드 자료실로 이동하여 관련 파일 다운로드"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                backgroundColor: '#334155',
+                color: '#38bdf8',
+                border: '1px solid #0284c7',
+                padding: '9px 14px',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                fontWeight: 600,
+                fontSize: '0.85rem',
+                whiteSpace: 'nowrap',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1e293b'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#334155'}
+            >
+              <FolderDown size={16} /> 자료실 다운로드
+            </a>
 
             {/* 관리자일 때만 추가 버튼 노출 */}
             {isAdmin && (
@@ -271,7 +294,7 @@ export default function App() {
               </button>
             )}
 
-            {/* 관리자 모드 토글 버튼 */}
+            {/* 관리자 로그인/로그아웃 버튼 */}
             {isAdmin ? (
               <button
                 onClick={handleAdminLogout}
@@ -445,7 +468,6 @@ export default function App() {
               </button>
             </div>
 
-            {/* 유튜브 iFrame 플레이어 */}
             <div style={{ position: 'relative', paddingTop: '56.25%', backgroundColor: '#000' }}>
               <iframe
                 src={`https://www.youtube.com/embed/${activeVideo.youtubeId}?autoplay=1`}
@@ -456,7 +478,6 @@ export default function App() {
               />
             </div>
 
-            {/* 프로토콜 단계별 상세 요약 */}
             <div style={{ padding: '20px' }}>
               <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#38bdf8' }}>권장 파라미터 세팅</h4>
               <p style={{ margin: '0 0 16px 0', fontSize: '0.85rem' }}>
@@ -510,7 +531,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 신규 영상 등록 모달 (관리자 전용) */}
+      {/* 신규 영상 등록 모달 */}
       {isAddModalOpen && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <form onSubmit={handleAddProtocol} style={{ backgroundColor: '#1e293b', borderRadius: '12px', width: '100%', maxWidth: '480px', padding: '24px', border: '1px solid #334155' }}>
