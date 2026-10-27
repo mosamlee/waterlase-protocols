@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Play, Search, Plus, Trash2, Activity, 
+  Play, Search, Plus, Trash2, Edit3, Activity, 
   X, Copy, Check, Lock, LogOut, FolderDown 
 } from 'lucide-react';
 
 // 1. 관리자 비밀번호
 const ADMIN_PASSWORD = '277588'; 
 
-// 2. 웹하드 다운로드 링크 (실제 웹하드/클라우드 링크로 교체하세요)
+// 2. 웹하드 다운로드 링크
 const WEBHARD_DOWNLOAD_URL = 'https://drive.google.com'; 
 
-// 이미지 기반 5대 카테고리 목록
+// 1~5번 임상 카테고리
 const CATEGORIES = [
   '전체',
   '1. Hygiene Care – Inflammation Control',
@@ -121,12 +121,17 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeVideo, setActiveVideo] = useState(null);
+  
+  // 모달 제어
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [copiedId, setCopiedId] = useState(null);
 
-  const [newForm, setNewForm] = useState({
+  // 등록/수정 폼 상태
+  const [formData, setFormData] = useState({
+    id: '',
     title: '',
     category: CATEGORIES[1],
     model: 'Waterlase iPlus',
@@ -142,6 +147,7 @@ export default function App() {
     localStorage.setItem('waterlase_protocols_v2', JSON.stringify(protocols));
   }, [protocols]);
 
+  // 관리자 인증
   const handleAdminLogin = (e) => {
     e.preventDefault();
     if (passwordInput === ADMIN_PASSWORD) {
@@ -167,12 +173,10 @@ export default function App() {
     return (match && match[2].length === 11) ? match[2] : url;
   };
 
+  // 삭제 핸들러
   const handleDelete = (id, e) => {
     e.stopPropagation();
-    if (!isAdmin) {
-      alert('관리자만 삭제할 수 있습니다.');
-      return;
-    }
+    if (!isAdmin) return;
     if (window.confirm('이 프로토콜 영상을 삭제하시겠습니까?')) {
       const updated = protocols.filter(item => item.id !== id);
       setProtocols(updated);
@@ -182,45 +186,76 @@ export default function App() {
     }
   };
 
+  // 수정 버튼 클릭 시 폼 열기
+  const handleOpenEdit = (item, e) => {
+    e.stopPropagation();
+    setFormData({
+      id: item.id,
+      title: item.title,
+      category: item.category,
+      model: item.model || 'Waterlase iPlus',
+      youtubeUrl: `https://youtu.be/${item.youtubeId}`,
+      tip: item.tip,
+      power: item.power,
+      hz: item.hz,
+      waterAir: item.waterAir,
+      summary: item.summary
+    });
+    setIsEditModalOpen(true);
+  };
+
+  // 수정 내용 저장
+  const handleSaveEdit = (e) => {
+    e.preventDefault();
+    const ytId = extractYoutubeId(formData.youtubeUrl);
+    const updated = protocols.map(item => {
+      if (item.id === formData.id) {
+        return {
+          ...item,
+          title: formData.title,
+          category: formData.category,
+          model: formData.model,
+          youtubeId: ytId,
+          tip: formData.tip,
+          power: formData.power,
+          hz: formData.hz,
+          waterAir: formData.waterAir,
+          summary: formData.summary
+        };
+      }
+      return item;
+    });
+    setProtocols(updated);
+    setIsEditModalOpen(false);
+    alert('수정 완료되었습니다.');
+  };
+
+  // 신규 등록
   const handleAddProtocol = (e) => {
     e.preventDefault();
-    if (!isAdmin) {
-      alert('관리자 권한이 필요합니다.');
-      return;
-    }
-    if (!newForm.title || !newForm.youtubeUrl) {
+    if (!formData.title || !formData.youtubeUrl) {
       alert('제목과 유튜브 링크를 입력해주세요.');
       return;
     }
-    const ytId = extractYoutubeId(newForm.youtubeUrl);
+    const ytId = extractYoutubeId(formData.youtubeUrl);
     const newEntry = {
       id: 'proto-' + Date.now(),
-      title: newForm.title,
-      category: newForm.category,
-      model: newForm.model,
+      title: formData.title,
+      category: formData.category,
+      model: formData.model,
       youtubeId: ytId,
-      tip: newForm.tip || 'MZ6 / RFPT',
-      power: newForm.power || '1.5W',
-      hz: newForm.hz || '30Hz',
-      waterAir: newForm.waterAir || 'Water 30% / Air 30%',
-      summary: newForm.summary || '임상 프로토콜 세팅 가이드',
-      steps: ['시술 부위 준비 및 소독', '지정 파라미터 세팅 후 시술 적용', '치유 확인 및 마무리']
+      tip: formData.tip || 'MZ6 / RFPT',
+      power: formData.power || '1.5W',
+      hz: formData.hz || '30Hz',
+      waterAir: formData.waterAir || 'Water 30% / Air 30%',
+      summary: formData.summary || '임상 프로토콜 세팅 가이드',
+      steps: ['시술 부위 준비 및 소독', '지정 파라미터 세팅 후 시술 적용', '치유 확인 및 사후 처치']
     };
     setProtocols([newEntry, ...protocols]);
     setIsAddModalOpen(false);
-    setNewForm({
-      title: '',
-      category: CATEGORIES[1],
-      model: 'Waterlase iPlus',
-      youtubeUrl: '',
-      tip: '',
-      power: '',
-      hz: '',
-      waterAir: '',
-      summary: ''
-    });
   };
 
+  // 파라미터 복사
   const handleCopyParams = (item, e) => {
     e.stopPropagation();
     const text = `[${item.title}]\nTip: ${item.tip}\nPower: ${item.power} | Hz: ${item.hz}\nWater/Air: ${item.waterAir}`;
@@ -286,7 +321,6 @@ export default function App() {
               href={WEBHARD_DOWNLOAD_URL}
               target="_blank"
               rel="noopener noreferrer"
-              title="웹하드 자료실로 이동"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -307,7 +341,21 @@ export default function App() {
 
             {isAdmin && (
               <button
-                onClick={() => setIsAddModalOpen(true)}
+                onClick={() => {
+                  setFormData({
+                    id: '',
+                    title: '',
+                    category: CATEGORIES[1],
+                    model: 'Waterlase iPlus',
+                    youtubeUrl: '',
+                    tip: '',
+                    power: '',
+                    hz: '',
+                    waterAir: '',
+                    summary: ''
+                  });
+                  setIsAddModalOpen(true);
+                }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -368,7 +416,7 @@ export default function App() {
           </div>
         </div>
 
-     {/* 카테고리 탭 (2줄 그리드 레이아웃) */}
+        {/* 2줄 카테고리 그리드 레이아웃 */}
         <div 
           style={{ 
             maxWidth: '1200px', 
@@ -391,8 +439,7 @@ export default function App() {
                 color: selectedCategory === cat ? '#fff' : '#94a3b8',
                 cursor: 'pointer',
                 fontWeight: selectedCategory === cat ? 600 : 400,
-                textAlign: 'center',
-                transition: 'all 0.15s ease'
+                textAlign: 'center'
               }}
             >
               {cat}
@@ -401,7 +448,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* 메인 리스트 */}
+      {/* 리스트 그리드 */}
       <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
         {filteredProtocols.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 0', color: '#64748b' }}>
@@ -439,24 +486,38 @@ export default function App() {
                     {item.category}
                   </span>
 
+                  {/* 관리자 모드 전용: 수정 및 삭제 버튼 그룹 */}
                   {isAdmin && (
-                    <button
-                      onClick={(e) => handleDelete(item.id, e)}
-                      title="프로토콜 삭제"
-                      style={{
-                        position: 'absolute',
-                        top: '10px',
-                        right: '10px',
-                        backgroundColor: 'rgba(239, 68, 68, 0.9)',
-                        border: 'none',
-                        color: '#fff',
-                        borderRadius: '6px',
-                        padding: '6px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                    <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '6px' }}>
+                      <button
+                        onClick={(e) => handleOpenEdit(item, e)}
+                        title="프로토콜 수정"
+                        style={{
+                          backgroundColor: 'rgba(14, 165, 233, 0.9)',
+                          border: 'none',
+                          color: '#fff',
+                          borderRadius: '6px',
+                          padding: '6px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <Edit3 size={14} />
+                      </button>
+                      <button
+                        onClick={(e) => handleDelete(item.id, e)}
+                        title="프로토콜 삭제"
+                        style={{
+                          backgroundColor: 'rgba(239, 68, 68, 0.9)',
+                          border: 'none',
+                          color: '#fff',
+                          borderRadius: '6px',
+                          padding: '6px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   )}
                 </div>
 
@@ -544,7 +605,6 @@ export default function App() {
                 <X size={20} />
               </button>
             </div>
-            <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: '0 0 16px 0' }}>비밀번호를 입력해 주세요.</p>
             <input
               type="password"
               placeholder="관리자 비밀번호"
@@ -563,13 +623,17 @@ export default function App() {
         </div>
       )}
 
-      {/* 모달: 영상 추가 */}
-      {isAddModalOpen && (
+      {/* 모달: 프로토콜 추가 / 수정 공용 모달 */}
+      {(isAddModalOpen || isEditModalOpen) && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <form onSubmit={handleAddProtocol} style={{ backgroundColor: '#1e293b', borderRadius: '12px', width: '100%', maxWidth: '480px', padding: '24px', border: '1px solid #334155' }}>
+          <form onSubmit={isEditModalOpen ? handleSaveEdit : handleAddProtocol} style={{ backgroundColor: '#1e293b', borderRadius: '12px', width: '100%', maxWidth: '480px', padding: '24px', border: '1px solid #334155' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ margin: 0 }}>새 프로토콜 영상 추가</h3>
-              <button type="button" onClick={() => setIsAddModalOpen(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
+              <h3 style={{ margin: 0 }}>{isEditModalOpen ? '프로토콜 정보 수정' : '새 프로토콜 영상 추가'}</h3>
+              <button 
+                type="button" 
+                onClick={() => { setIsAddModalOpen(false); setIsEditModalOpen(false); }} 
+                style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+              >
                 <X size={20} />
               </button>
             </div>
@@ -581,8 +645,8 @@ export default function App() {
                   type="text"
                   required
                   placeholder="시술명 입력"
-                  value={newForm.title}
-                  onChange={(e) => setNewForm({ ...newForm, title: e.target.value })}
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
                 />
               </div>
@@ -593,8 +657,8 @@ export default function App() {
                   type="text"
                   required
                   placeholder="https://youtu.be/... 또는 영상 ID"
-                  value={newForm.youtubeUrl}
-                  onChange={(e) => setNewForm({ ...newForm, youtubeUrl: e.target.value })}
+                  value={formData.youtubeUrl}
+                  onChange={(e) => setFormData({ ...formData, youtubeUrl: e.target.value })}
                   style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
                 />
               </div>
@@ -602,8 +666,8 @@ export default function App() {
               <div>
                 <label style={{ display: 'block', marginBottom: '4px', color: '#cbd5e1' }}>카테고리 선택</label>
                 <select
-                  value={newForm.category}
-                  onChange={(e) => setNewForm({ ...newForm, category: e.target.value })}
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff' }}
                 >
                   {CATEGORIES.filter(c => c !== '전체').map(c => <option key={c} value={c}>{c}</option>)}
@@ -616,8 +680,8 @@ export default function App() {
                   <input
                     type="text"
                     placeholder="MZ6, RFPT 5"
-                    value={newForm.tip}
-                    onChange={(e) => setNewForm({ ...newForm, tip: e.target.value })}
+                    value={formData.tip}
+                    onChange={(e) => setFormData({ ...formData, tip: e.target.value })}
                     style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
                   />
                 </div>
@@ -626,8 +690,8 @@ export default function App() {
                   <input
                     type="text"
                     placeholder="1.5W / 30Hz"
-                    value={newForm.power}
-                    onChange={(e) => setNewForm({ ...newForm, power: e.target.value })}
+                    value={formData.power}
+                    onChange={(e) => setFormData({ ...formData, power: e.target.value })}
                     style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
                   />
                 </div>
@@ -638,8 +702,8 @@ export default function App() {
                 <input
                   type="text"
                   placeholder="Water 30% / Air 40%"
-                  value={newForm.waterAir}
-                  onChange={(e) => setNewForm({ ...newForm, waterAir: e.target.value })}
+                  value={formData.waterAir}
+                  onChange={(e) => setFormData({ ...formData, waterAir: e.target.value })}
                   style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
                 />
               </div>
@@ -649,8 +713,8 @@ export default function App() {
                 <textarea
                   rows={2}
                   placeholder="시술 목적 및 주의사항 간략 메모"
-                  value={newForm.summary}
-                  onChange={(e) => setNewForm({ ...newForm, summary: e.target.value })}
+                  value={formData.summary}
+                  onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
                   style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
                 />
               </div>
@@ -659,7 +723,7 @@ export default function App() {
                 type="submit"
                 style={{ marginTop: '10px', backgroundColor: '#0284c7', color: '#fff', border: 'none', padding: '10px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
               >
-                저장하기
+                {isEditModalOpen ? '수정 내용 저장' : '등록하기'}
               </button>
             </div>
           </form>
