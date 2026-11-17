@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Play, Search, Plus, Trash2, Edit3, Activity, 
-  X, Copy, Check, Lock, LogOut, FolderDown 
+  X, Copy, Check, Lock, LogOut, FolderDown, Sparkles, Loader2 
 } from 'lucide-react';
 
 // 1. 관리자 비밀번호
-const ADMIN_PASSWORD = '277588'; 
+const ADMIN_PASSWORD = 'admin'; 
 
 // 2. 웹하드 다운로드 링크
-const WEBHARD_DOWNLOAD_URL = 'https://webhard.imegagen.com:5001/sharing/e99B9RnxF'; 
+const WEBHARD_DOWNLOAD_URL = 'https://drive.google.com'; 
 
 // 1~5번 임상 카테고리
 const CATEGORIES = [
@@ -109,6 +109,56 @@ const INITIAL_PROTOCOLS = [
   }
 ];
 
+// 제목 키워드 분석 기반 워터레이즈 표준 프로토콜 자동 매칭 함수
+function inferProtocolFromTitle(title) {
+  const lower = title.toLowerCase();
+
+  if (lower.includes('endo') || lower.includes('root canal') || lower.includes('근관') || lower.includes('신경')) {
+    return {
+      category: '5. Endodontics',
+      tip: 'RFT2 / RFT3',
+      power: '1.25W / 50Hz',
+      waterAir: 'Water 20% / Air 30%',
+      summary: '근관 내 세균막 살균 및 스미어 레이어 제거를 위한 워터레이즈 근관 치료 프로토콜.'
+    };
+  }
+  if (lower.includes('implant') || lower.includes('임플란트') || lower.includes('bone') || lower.includes('crown lengthening') || lower.includes('치관연장')) {
+    return {
+      category: '3. Soft & Hard Tissue – Definitive Treatment',
+      tip: 'RFPT5 / MZ6 / MZ8',
+      power: '1.5W - 3.5W / 20Hz - 50Hz',
+      waterAir: 'Water 40% - 60% / Air 40%',
+      summary: '연조직 절제 및 경조직(치조골/임플란트 주위) 처치를 병행하는 확정적 치료 프로토콜.'
+    };
+  }
+  if (lower.includes('veneer') || lower.includes('crown') || lower.includes('melanin') || lower.includes('depigmentation') || lower.includes('esthetic') || lower.includes('smile') || lower.includes('베니어') || lower.includes('크라운') || lower.includes('심미')) {
+    return {
+      category: '4. Esthetics',
+      tip: 'MZ6',
+      power: '3.5W - 4.5W / 20Hz',
+      waterAir: 'Water 50% / Air 50%',
+      summary: '보철물(베니어/크라운) 비침습 제거 및 심미적 치은 성형을 위한 에스테틱 프로토콜.'
+    };
+  }
+  if (lower.includes('fibroma') || lower.includes('frenectomy') || lower.includes('gingivectomy') || lower.includes('soft tissue') || lower.includes('cutting') || lower.includes('소대') || lower.includes('절제')) {
+    return {
+      category: '2. Soft Tissue Cutting',
+      tip: 'MZ6',
+      power: '1.5W - 2.5W / 40Hz - 50Hz',
+      waterAir: 'Water 10% - 20% / Air 20%',
+      summary: '출혈 없이 정밀하게 연조직을 절제(Soft Tissue Cutting)하고 지혈하는 프로토콜.'
+    };
+  }
+  // 기본값 (Perio / 치주 / 일반 위생 관리)
+  return {
+    category: '1. Hygiene Care – Inflammation Control',
+    tip: 'RFPT5',
+    power: '1.5W / 30Hz - 50Hz',
+    waterAir: 'Water 30% - 40% / Air 40%',
+    summary: '치주낭 내부 살균 및 염증 제어(Inflammation Control)를 위한 최소 침습 레이저 프로토콜.'
+  };
+}
+
 export default function App() {
   const [protocols, setProtocols] = useState(() => {
     const saved = localStorage.getItem('waterlase_protocols_prod_v1');
@@ -128,6 +178,7 @@ export default function App() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [copiedId, setCopiedId] = useState(null);
+  const [isFetchingMeta, setIsFetchingMeta] = useState(false);
 
   const [formData, setFormData] = useState({
     id: '',
@@ -168,7 +219,50 @@ export default function App() {
   const extractYoutubeId = (url) => {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : url;
+    return (match && match[2].length === 11) ? match[2] : url.trim();
+  };
+
+  // 유튜브 링크로부터 제목 및 권장 프로토콜 자동 기입 핸들러
+  const handleAutoFillFromYoutube = async (urlInput) => {
+    const targetUrl = urlInput || formData.youtubeUrl;
+    if (!targetUrl) {
+      alert('먼저 유튜브 URL을 입력해 주세요.');
+      return;
+    }
+
+    const ytId = extractYoutubeId(targetUrl);
+    if (!ytId || ytId.length !== 11) {
+      alert('올바른 유튜브 링크 또는 11자리 영상 ID를 입력해 주세요.');
+      return;
+    }
+
+    setIsFetchingMeta(true);
+    try {
+      const fullUrl = `https://www.youtube.com/watch?v=${ytId}`;
+      const res = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(fullUrl)}`);
+      const data = await res.json();
+
+      if (data && data.title) {
+        const inferred = inferProtocolFromTitle(data.title);
+        setFormData(prev => ({
+          ...prev,
+          youtubeUrl: targetUrl,
+          title: data.title,
+          category: inferred.category,
+          tip: inferred.tip,
+          power: inferred.power,
+          waterAir: inferred.waterAir,
+          summary: inferred.summary
+        }));
+      } else {
+        alert('영상 제목을 가져오지 못했습니다. 비공개 영상이거나 링크를 확인해 주세요.');
+      }
+    } catch (error) {
+      console.error('Metadata fetch failed:', error);
+      alert('유튜브 정보를 불러오는 중 네트워크 오류가 발생했습니다.');
+    } finally {
+      setIsFetchingMeta(false);
+    }
   };
 
   const handleDelete = (id, e) => {
@@ -251,7 +345,7 @@ export default function App() {
 
   const handleCopyParams = (item, e) => {
     e.stopPropagation();
-    const text = `[${item.title}]\nTip: ${item.tip}\nPower: ${item.power} | Hz: ${item.hz}\nWater/Air: ${item.waterAir}`;
+    const text = `[${item.title}]\nTip: ${item.tip}\nPower: ${item.power}\nWater/Air: ${item.waterAir}`;
     navigator.clipboard.writeText(text);
     setCopiedId(item.id);
     setTimeout(() => setCopiedId(null), 2000);
@@ -269,7 +363,7 @@ export default function App() {
     <div style={{ minHeight: '100vh', backgroundColor: '#0f172a', color: '#f8fafc', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       {/* 헤더 */}
       <header style={{ borderBottom: '1px solid #1e293b', backgroundColor: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(8px)', position: 'sticky', top: 0, zIndex: 30, padding: '16px 24px' }}>
-        <div style={{ maxWidth: '95%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+        <div style={{ maxWidth: '1600px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'linear-gradient(135deg, #0ea5e9, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(14, 165, 233, 0.3)' }}>
@@ -277,7 +371,7 @@ export default function App() {
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h1 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 'bold', letterSpacing: '-0.02em' }}>Waterlase Clinical Hub</h1>
+                <h1 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 'bold', letterSpacing: '-0.02em', color: '#f8fafc' }}>Waterlase Clinical Hub</h1>
                 {isAdmin && (
                   <span style={{ fontSize: '0.7rem', backgroundColor: '#059669', color: '#fff', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
                     관리자 모드
@@ -289,7 +383,7 @@ export default function App() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative', width: '200px' }}>
+            <div style={{ position: 'relative', width: '220px' }}>
               <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
               <input
                 type="text"
@@ -412,7 +506,7 @@ export default function App() {
         {/* 2줄 카테고리 그리드 레이아웃 */}
         <div 
           style={{ 
-            maxWidth: '95%', 
+            maxWidth: '1600px', 
             margin: '14px auto 0', 
             display: 'grid', 
             gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
@@ -442,13 +536,13 @@ export default function App() {
       </header>
 
       {/* 리스트 그리드 */}
-      <main style={{ maxWidth: '95%', margin: '0 auto', padding: '24px' }}>
+      <main style={{ maxWidth: '1600px', margin: '0 auto', padding: '24px' }}>
         {filteredProtocols.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 0', color: '#64748b' }}>
             <p style={{ fontSize: '1.1rem' }}>해당 카테고리의 프로토콜 영상이 없습니다.</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '22px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '22px' }}>
             {filteredProtocols.map(item => (
               <div
                 key={item.id}
@@ -479,7 +573,6 @@ export default function App() {
                     {item.category}
                   </span>
 
-                  {/* 관리자 모드 전용: 수정 및 삭제 버튼 */}
                   {isAdmin && (
                     <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '6px' }}>
                       <button
@@ -633,11 +726,52 @@ export default function App() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.85rem' }}>
               <div>
+                <label style={{ display: 'block', marginBottom: '4px', color: '#cbd5e1' }}>유튜브 URL 또는 영상 ID *</label>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <input
+                    type="text"
+                    required
+                    placeholder="https://youtu.be/... 붙여넣기"
+                    value={formData.youtubeUrl}
+                    onChange={(e) => setFormData({ ...formData, youtubeUrl: e.target.value })}
+                    onPaste={(e) => {
+                      const pasted = e.clipboardData.getData('text');
+                      if (pasted.includes('youtu')) {
+                        setTimeout(() => handleAutoFillFromYoutube(pasted), 100);
+                      }
+                    }}
+                    style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleAutoFillFromYoutube()}
+                    disabled={isFetchingMeta}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      backgroundColor: '#059669',
+                      color: '#fff',
+                      border: 'none',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {isFetchingMeta ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                    {isFetchingMeta ? '분석중' : '자동 채우기'}
+                  </button>
+                </div>
+              </div>
+
+              <div>
                 <label style={{ display: 'block', marginBottom: '4px', color: '#cbd5e1' }}>프로토콜 제목 *</label>
                 <input
                   type="text"
                   required
-                  placeholder="시술명 입력"
+                  placeholder="유튜브 링크 입력 시 자동 추출됨"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
@@ -645,19 +779,7 @@ export default function App() {
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: '4px', color: '#cbd5e1' }}>유튜브 URL 또는 영상 ID *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="https://youtu.be/... 또는 영상 ID"
-                  value={formData.youtubeUrl}
-                  onChange={(e) => setFormData({ ...formData, youtubeUrl: e.target.value })}
-                  style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', color: '#cbd5e1' }}>카테고리 선택</label>
+                <label style={{ display: 'block', marginBottom: '4px', color: '#cbd5e1' }}>카테고리 선택 (제목 기반 자동 추천)</label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
